@@ -30,3 +30,27 @@ export async function actor(
 export function ipLimited(request: Request, key: string, max: number): boolean {
   return rateLimited(`${key}:${clientIp(request)}`, max);
 }
+
+// Anything a route throws becomes a reason the client can actually render. Without this a
+// throw reaches the browser as a bodiless 500, `act` finds no reason in it, and the button
+// looks like it simply does nothing.
+export async function guard<T>(run: () => Promise<T>): Promise<T | NextResponse> {
+  try {
+    return await run();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    // The one failure worth naming precisely: no database, on a filesystem that will not
+    // take the fallback store either.
+    const storage = /EACCES|EROFS|ENOENT|read-only/i.test(message);
+    console.error("[shaft] route failed:", message);
+    return NextResponse.json(
+      {
+        ok: false,
+        reason: storage
+          ? "Storage is not writable. This deployment has no DATABASE_URL, and the fallback file store cannot write on a serverless filesystem."
+          : "Something broke down here. Try again.",
+      },
+      { status: storage ? 503 : 500 },
+    );
+  }
+}

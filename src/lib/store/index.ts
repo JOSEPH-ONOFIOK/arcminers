@@ -33,3 +33,13 @@ export function getStore(): ShaftStore {
   );
   return store;
 }
+
+// Postgres when DATABASE_URL is set, the JSON file store otherwise. The file store cannot
+// hold state on serverless: the filesystem is read only, and instances do not share one.
+export function storageKind(): "postgres" | "file" {
+  return process.env.DATABASE_URL ? "postgres" : "file";
+}
+
+export function storageEphemeral(): boolean {
+  return storageKind() === "file" && process.env.NODE_ENV === "production";
+}

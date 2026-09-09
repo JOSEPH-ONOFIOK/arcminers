@@ -56,7 +56,11 @@ export function useShaft(intervalMs = 15_000) {
           body: JSON.stringify(body ?? {}),
         });
         const data = (await response.json().catch(() => ({}))) as ActionResult;
-        if (!data.ok && data.reason) setError(data.reason);
+        // A failed response with no parseable body still has to say something, or the
+        // control just appears inert.
+        if (!data.ok) {
+          setError(data.reason ?? `That did not go through (${response.status}). Try again.`);
+        }
         await refresh();
         return data;
       } catch {

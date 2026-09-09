@@ -44,6 +44,8 @@ export type SeamView = { tier: Tier; remaining: number; total: number };
 export type ShaftState = {
   now: number;
   handle: string | null;
+  // True when the app is deployed with no DATABASE_URL, so nothing it writes survives.
+  ephemeralStorage: boolean;
   window: WindowView;
   player: PlayerView | null;
   picks: { available: number; cap: number; nextPickMs: number } | null;

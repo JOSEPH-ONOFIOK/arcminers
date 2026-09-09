@@ -50,6 +50,18 @@ export default function ShaftPage() {
         <SiteNav handle={state.handle} />
 
         <div className="stack-lg">
+          {state.ephemeralStorage ? (
+            <div className="panel" data-alarm="true">
+              <h2>Storage is not configured</h2>
+              <p className="note">
+                This deployment has no <code>DATABASE_URL</code>, so it falls back to a JSON file
+                store. A serverless filesystem is read only, and instances do not share one, so
+                nothing written here survives. Point <code>DATABASE_URL</code> at a pooled Postgres
+                connection string and apply <code>src/lib/store/schema.sql</code>.
+              </p>
+            </div>
+          ) : null}
+
           <header className="stack">
             <span className="eyebrow">Arc Miners · Pre-mint · No wallet, no gas</span>
             <h1>

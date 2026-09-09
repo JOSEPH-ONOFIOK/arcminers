@@ -195,6 +195,11 @@ h3 { font-size: 1rem; font-weight: 600; color: var(--bone); margin: 0; }
   background: linear-gradient(90deg, transparent, rgba(224, 138, 60, 0.4), transparent);
 }
 
+.panel[data-alarm="true"] { border-color: rgba(208, 85, 63, 0.5); background: rgba(208, 85, 63, 0.09); }
+.panel[data-alarm="true"]::before { background: linear-gradient(90deg, transparent, rgba(208, 85, 63, 0.6), transparent); }
+.panel[data-alarm="true"] h2 { color: var(--danger); }
+.panel code { font-family: var(--mono); font-size: 0.85em; color: var(--bone); background: rgba(9, 8, 6, 0.7); padding: 0.1em 0.35em; }
+
 .panel-head {
   display: flex;
   justify-content: space-between;
