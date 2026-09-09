@@ -1,0 +1,30 @@
+{
+  "name": "arc-miners-shaft",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "tsx --env-file=.env.local scripts/migrate.mts",
+    "dryrun:engine": "tsx scripts/engine-dryrun.mts"
+  },
+  "dependencies": {
+    "next": "15.5.4",
+    "pg": "^8.13.1",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/pg": "^8.11.10",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.4",
+    "tsx": "^4.19.2",
+    "typescript": "^5"
+  }
+}
