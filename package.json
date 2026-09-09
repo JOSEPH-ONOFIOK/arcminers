@@ -12,10 +12,10 @@
     "dryrun:engine": "tsx scripts/engine-dryrun.mts"
   },
   "dependencies": {
-    "next": "15.5.4",
+    "next": "^16.3.4",
     "pg": "^8.13.1",
-    "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
   },
   "devDependencies": {
     "@types/node": "^22",
@@ -23,7 +23,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "15.5.4",
+    "eslint-config-next": "^16.3.4",
     "tsx": "^4.19.2",
     "typescript": "^5"
   }

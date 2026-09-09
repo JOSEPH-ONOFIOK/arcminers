@@ -24,13 +24,17 @@ export function ShaftWorld({ tier, falling }: { tier: Tier; falling: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const tierRef = useRef(tier);
   const fallRef = useRef(0);
-  const lastFall = useRef(falling);
 
-  tierRef.current = tier;
-  if (falling !== lastFall.current) {
-    lastFall.current = falling;
+  // The draw loop reads these rather than re-subscribing, so they are synced
+  // from effects. Mutating a ref during render survives a render React throws
+  // away, which is exactly the tearing concurrent mode is allowed to cause.
+  useEffect(() => {
+    tierRef.current = tier;
+  }, [tier]);
+
+  useEffect(() => {
     fallRef.current = 1;
-  }
+  }, [falling]);
 
   useEffect(() => {
     const canvas = canvasRef.current;

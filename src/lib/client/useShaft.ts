@@ -25,6 +25,9 @@ export function useShaft(intervalMs = 15_000) {
   }, []);
 
   useEffect(() => {
+    // The lint rule cannot see past the promise: `refresh` only sets state
+    // after an awaited fetch, so it cannot cascade renders synchronously.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     refresh();
     const onVisibility = () => {
       visible.current = document.visibilityState === "visible";
