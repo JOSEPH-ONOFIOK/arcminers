@@ -44,7 +44,16 @@ export async function POST(request: Request) {
   const url = String(body?.url ?? "");
   const post = parsePostUrl(url);
   if (!post) {
-    return fail("That doesn't look like an X post link. It should look like x.com/you/status/123…");
+    return fail("That does not look like an X post link. It should look like x.com/you/status/123.");
+  }
+
+  // A handle is typed, never proven, so this is where identity is actually established: the
+  // post has to come from the account the run is held against. Outside the bypass, oEmbed's
+  // reported author is checked too, since a URL can name a handle that did not write the post.
+  if (post.handle.toLowerCase() !== handle.toLowerCase()) {
+    return fail(
+      `That post is from @${post.handle}, and this run belongs to @${handle}. Post it from @${handle}.`,
+    );
   }
 
   const player = await getStore().getPlayer(handle);
@@ -53,7 +62,7 @@ export async function POST(request: Request) {
   const assay = await assayFor(player);
 
   if (!bypassed()) {
-    let payload: { html?: string };
+    let payload: { html?: string; author_url?: string };
     try {
       const response = await fetch(
         `${OEMBED}?url=${encodeURIComponent(`https://x.com/${post.handle}/status/${post.id}`)}&omit_script=1&dnt=1`,
@@ -68,6 +77,13 @@ export async function POST(request: Request) {
       payload = await response.json();
     } catch {
       return fail("Couldn't reach X to check the post. Try again shortly.", 502);
+    }
+
+    // A URL can name any handle; oEmbed reports who actually wrote the post. Checking both
+    // closes the gap where x.com/someoneelse/status/<id> resolves to a real post.
+    const author = payload.author_url?.split("/").filter(Boolean).pop();
+    if (author && author.toLowerCase() !== handle.toLowerCase()) {
+      return fail(`That post was written by @${author}, and this run belongs to @${handle}.`);
     }
 
     const text = extractText(payload.html ?? "");

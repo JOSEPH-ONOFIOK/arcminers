@@ -71,12 +71,21 @@ edges. Colours emit as one run-length encoded path each, not 600 rects.
 | One dig per player per sequence | `UNIQUE (handle_lower, seq)` |
 | A Warden cannot stack cover | partial `UNIQUE (warden, target) WHERE consumed_by IS NULL` |
 
-## The gate
+## Identity and the gate
 
-`/api/verify` calls X's public oEmbed endpoint and checks three things: the post
-exists and is public, it tags the project, and it carries that player's dig tag.
-The third is the one that matters. Verification is also the only path that writes
-an entry, so there is no submit endpoint an unverified client could call instead.
+A handle is typed, not proven. Entering the shaft sets a cookie and nothing more,
+so anyone can start a run under any name. Identity is established at the post
+gate instead, which is the only place it matters, because it is the only path
+that writes an entry and therefore the only way onto the boards or into a spot.
+
+`/api/verify` calls X's public oEmbed endpoint and checks four things: the post
+exists and is public, its author is the handle the run is held against, it tags
+the project, and it carries that run's dig tag. The author check is what stops
+someone entering as a stranger, and the tag is what stops someone pasting a
+stranger's post.
+
+Swapping in real OAuth later means restoring `/api/session` as a token exchange.
+Nothing downstream reads anything but the handle in the cookie.
 
 ## Environment
 
@@ -84,12 +93,8 @@ an entry, so there is no submit endpoint an unverified client could call instead
 | --- | --- |
 | `DATABASE_URL` | JSON file store. Not safe on serverless. |
 | `ARC_SEED_SECRET` | A known development string. Outcomes become predictable. |
-| `X_CLIENT_ID` / `X_CLIENT_SECRET` | Sign in is unavailable and the shaft stays shut. |
 | `ARC_WINDOW_OPEN` / `ARC_WINDOW_CLOSE` | Always open. |
-| `ARC_DEV_SIGNIN`, `ARC_SKIP_POST_CHECK` | Development only, ignored in production. |
-
-Register the X app as a confidential client, callback
-`https://<domain>/api/auth/x/callback`, scopes `users.read tweet.read`.
+| `ARC_SKIP_POST_CHECK` | Development only, ignored in production. |
 
 ## Before the window opens
 
@@ -98,6 +103,10 @@ Register the X app as a confidential client, callback
 - [ ] Set `ARC_SEED_SECRET` to something long and random.
 - [ ] Move the rate limits in `src/lib/server/limit.ts` to shared storage. They
       are per instance, so the real ceiling is that times the instance count.
+- [ ] Decide whether typed handles are enough. A run under a handle you do not
+      own cannot clear the gate, but it can squat the name on the boards until
+      the window closes. OAuth closes that; so does letting the real owner
+      reclaim a handle at the gate.
 - [ ] Decide the sybil floor. One run per handle is enforced, one run per human
       is not. If a spot is worth more than the pick rate costs in attention, add
       a wallet snapshot requirement.

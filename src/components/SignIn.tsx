@@ -1,22 +1,28 @@
 "use client";
 
 import { useState } from "react";
-import type { ShaftState } from "@/lib/shaft/state";
+import { HANDLE_RE, normalizeHandle } from "@/lib/shaft/rules";
 
-// Step one, and it comes before the shaft renders at all.
-export function SignIn({ state, onDone }: { state: ShaftState; onDone: () => void }) {
+export function SignIn({ onDone }: { onDone: () => void }) {
   const [handle, setHandle] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
-  async function devSignIn() {
-    const response = await fetch("/api/auth/x/dev", {
+  const clean = normalizeHandle(handle);
+  const valid = HANDLE_RE.test(clean);
+
+  async function submit() {
+    setBusy(true);
+    setError(null);
+    const response = await fetch("/api/session", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ handle }),
+      body: JSON.stringify({ handle: clean }),
     });
     const data = await response.json().catch(() => ({}));
+    setBusy(false);
     if (data.ok) onDone();
-    else setError(data.reason ?? "Couldn't sign in.");
+    else setError(data.reason ?? "Could not start a run.");
   }
 
   return (
@@ -25,40 +31,31 @@ export function SignIn({ state, onDone }: { state: ShaftState; onDone: () => voi
         <span className="eyebrow">Step 01 · Identity</span>
         <h2>Light your lamp</h2>
         <p className="note">
-          A run is held against an X handle from its first pick. Only the handle is kept. The
-          access token is never stored, because the shaft never acts on your behalf.
+          A run is held against an X handle from its first pick, so it has to be named before the
+          shaft opens. Use the handle you intend to post from. Clearing the post gate later
+          requires a post authored by this exact account, so a handle you do not own gets you as
+          far as the boards and no further.
         </p>
       </div>
 
-      {state.configured ? (
-        <a className="btn" data-kind="primary" href="/api/auth/x/start?from=/">
-          Sign in with X
-        </a>
-      ) : (
-        <p className="note">
-          X sign-in isn&rsquo;t configured on this deployment.{" "}
-          {state.devSignIn ? "Use the development sign-in below." : "Set X_CLIENT_ID and X_CLIENT_SECRET."}
-        </p>
-      )}
-
-      {state.devSignIn ? (
-        <div className="stack">
-          <span className="eyebrow">Development sign-in</span>
-          <div className="row">
-            <input
-              type="text"
-              value={handle}
-              placeholder="handle"
-              onChange={(event) => setHandle(event.target.value)}
-              style={{ maxWidth: 220 }}
-            />
-            <button className="btn" onClick={devSignIn} disabled={!handle}>
-              Sign in
-            </button>
-          </div>
-          {error ? <span className="error">{error}</span> : null}
-        </div>
-      ) : null}
+      <div className="row">
+        <input
+          type="text"
+          value={handle}
+          placeholder="@yourhandle"
+          autoComplete="off"
+          spellCheck={false}
+          onChange={(event) => setHandle(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" && valid && !busy) submit();
+          }}
+          style={{ maxWidth: 260 }}
+        />
+        <button className="btn" data-kind="primary" disabled={!valid || busy} onClick={submit}>
+          Enter the shaft
+        </button>
+      </div>
+      {error ? <span className="error">{error}</span> : null}
     </div>
   );
 }

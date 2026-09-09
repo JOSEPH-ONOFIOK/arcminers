@@ -20,7 +20,19 @@ export function SiteNav({ handle }: { handle: string | null }) {
             {link.label}
           </Link>
         ))}
-        {handle ? <span className="nav-who">@{handle}</span> : null}
+        {handle ? (
+          <button
+            className="nav-who"
+            type="button"
+            title="Leave the shaft"
+            onClick={async () => {
+              await fetch("/api/session", { method: "DELETE" });
+              window.location.reload();
+            }}
+          >
+            @{handle}
+          </button>
+        ) : null}
       </div>
     </nav>
   );

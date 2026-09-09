@@ -3,7 +3,7 @@ import { caveInChance, descendCost, picks as pickState } from "@/lib/shaft/engin
 import { SPOTS, nextTier } from "@/lib/shaft/rules";
 import type { ShaftState } from "@/lib/shaft/state";
 import { getStore } from "@/lib/store";
-import { currentHandle, devSignInAllowed, signInConfigured } from "@/lib/server/session";
+import { currentHandle } from "@/lib/server/session";
 import { dayKey, windowBounds, windowState } from "@/lib/server/window";
 
 export const runtime = "nodejs";
@@ -19,8 +19,6 @@ export async function GET() {
   const base: ShaftState = {
     now,
     handle,
-    configured: signInConfigured(),
-    devSignIn: devSignInAllowed(),
     window: { state: windowState(now), open: bounds.open, close: bounds.close },
     player: null,
     picks: null,

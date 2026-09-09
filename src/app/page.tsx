@@ -90,7 +90,7 @@ export default function ShaftPage() {
           ) : null}
 
           {!state.handle ? (
-            <SignIn state={state} onDone={refresh} />
+            <SignIn onDone={refresh} />
           ) : !state.player ? (
             <RigPicker busy={busy} onPick={(rig) => act("/api/enlist", { rig })} />
           ) : (

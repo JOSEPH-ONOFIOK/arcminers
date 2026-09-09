@@ -131,6 +131,7 @@ a:hover { text-decoration: underline; }
 }
 .nav a:hover { color: var(--amber); text-decoration: none; }
 .nav a[data-active="true"] { color: var(--bone); }
+.nav-who:hover { color: var(--amber); }
 
 /* --- type -------------------------------------------------------------- */
 

@@ -31,7 +31,7 @@ export default function BoardsPage() {
         .then((response) => response.json())
         .then(setData)
         .catch(() => {});
-      fetch("/api/auth/x/me")
+      fetch("/api/session")
         .then((response) => response.json())
         .then((session) => setHandle(session.handle))
         .catch(() => {});

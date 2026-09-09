@@ -44,8 +44,6 @@ export type SeamView = { tier: Tier; remaining: number; total: number };
 export type ShaftState = {
   now: number;
   handle: string | null;
-  configured: boolean;
-  devSignIn: boolean;
   window: WindowView;
   player: PlayerView | null;
   picks: { available: number; cap: number; nextPickMs: number } | null;
