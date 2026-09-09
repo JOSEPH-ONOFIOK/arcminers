@@ -14,7 +14,7 @@ import type {
   Tx,
 } from "./types";
 
-type Shape = {
+export type Shape = {
   players: Record<string, Player>;
   digs: Dig[];
   seams: Record<string, { total: number; remaining: number }>;
@@ -36,14 +36,14 @@ const EMPTY: Shape = {
 
 // JSON-file store, for development only.
 export class FileStore implements ShaftStore {
-  private readonly path: string;
-  private queue: Promise<unknown> = Promise.resolve();
+  protected readonly path: string;
+  protected queue: Promise<unknown> = Promise.resolve();
 
   constructor(path?: string) {
     this.path = path ?? ".data/shaft.json";
   }
 
-  private read(): Shape {
+  protected read(): Shape {
     try {
       return { ...EMPTY, ...JSON.parse(readFileSync(this.path, "utf8")) };
     } catch {
@@ -51,13 +51,13 @@ export class FileStore implements ShaftStore {
     }
   }
 
-  private write(data: Shape): void {
+  protected write(data: Shape): void {
     mkdirSync(dirname(this.path), { recursive: true });
     writeFileSync(this.path, JSON.stringify(data, null, 2));
   }
 
   /** Serialise every mutation, so a read and its write are never interleaved. */
-  private lock<T>(run: (data: Shape) => T | Promise<T>): Promise<T> {
+  protected lock<T>(run: (data: Shape) => T | Promise<T>): Promise<T> {
     const next = this.queue.then(async () => {
       const data = this.read();
       const result = await run(data);
@@ -153,7 +153,7 @@ export class FileStore implements ShaftStore {
     });
   }
 
-  private countVotes(data: Shape, handle: string): number {
+  protected countVotes(data: Shape, handle: string): number {
     return data.votes.filter((vote) => vote.entry === handle).length;
   }
 

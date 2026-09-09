@@ -61,6 +61,22 @@ ramp is tinted toward the tier glow, and lit pixels are drawn twice, once throug
 a blur and once crisp on top. One pass alone loses either the glow or the pixel
 edges. Colours emit as one run-length encoded path each, not 600 rects.
 
+## Storage falls back rather than failing
+
+Postgres when `DATABASE_URL` is set. Otherwise the JSON file store, and where that
+path will not take a write, an in-memory store. The choice is made by probing
+the path rather than sniffing the host: the question is not which platform this
+is, it is whether a write lands.
+
+The memory store exists so a deployment with no database is demonstrable instead
+of broken. It buys a working demo, not persistence. Each instance holds its own
+copy and a cold start begins from nothing, so a run can vanish between two
+clicks. The shaft shows a banner whenever it is running on anything but Postgres,
+and that banner should stay until `DATABASE_URL` is set.
+
+It shares every line of its logic with the file store, so the fallback cannot
+drift from the thing it is standing in for.
+
 ## Constraints, not application code
 
 | Rule | Enforced by |
@@ -91,7 +107,8 @@ Nothing downstream reads anything but the handle in the cookie.
 
 | Variable | Without it |
 | --- | --- |
-| `DATABASE_URL` | JSON file store. Not safe on serverless. |
+| `DATABASE_URL` | Falls back to the JSON file store, or to memory where there is no writable disk. Demo only. |
+| `ARC_EPHEMERAL` | Set to `1` to force the memory store even where a disk exists. |
 | `ARC_SEED_SECRET` | A known development string. Outcomes become predictable. |
 | `ARC_WINDOW_OPEN` / `ARC_WINDOW_CLOSE` | Always open. |
 | `ARC_SKIP_POST_CHECK` | Development only, ignored in production. |
